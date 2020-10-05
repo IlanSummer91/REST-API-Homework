@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Express Chat</title>
+</head>
+<body>
+  <div id="history">
+    Loading...
+  </div>
+
+  <form>
+    <input name="name" placeholder="Name">
+    <input name="message" placeholder="Message">
+    <input type="submit">
+    <input type="button" id="deleteHistoryButton" value="Clear">
+  </form>
+
+  <script>
+    const form = document.querySelector('form');
+    const chat = document.querySelector('#history');
+    const deleteHistoryButton = document.querySelector('#deleteHistoryButton');
+
+    const serverURL = 'http://localhost:8080';
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = form.name.value;
+      const message = form.message.value;
+      sendMessage(name, message);
+    });
+
+    deleteHistoryButton.addEventListener('click', e => {
+      e.preventDefault();
+      deleteHistory();
+    });
+
+    async function sendMessage(name, message) {
+      const response = await fetch(`${serverURL}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          message,
+        }),
+      });
+      const messages = await response.json();
+      renderMesseges(messages);
+      form.message.value = '';
+    }
+
+    async function deleteHistory() {
+      const response = await fetch(`${serverURL}/messages`, {
+        method: 'DELETE'
+      });
+      const messages = await response.json();
+      renderMesseges(messages);
+    }
+
+    async function deleteMessage(id) {
+      const response = await fetch(`${serverURL}/messages/${id}`, {
+        method: 'DELETE'
+      });
+      const messages = await response.json();
+      renderMesseges(messages);
+    }
+
+    async function readMessages() {
+      const response = await fetch(`${serverURL}/messages`);
+      const messages = await response.json();
+      renderMesseges(messages);
+    }
+
+    function renderMesseges(messages) {
+      chat.innerHTML = messages.reduce((html, {name, message, id}) => {
+        html += `
+          <div class="message">
+            <span class="message-author">${name}: </span>
+            <span class="message-text">${message}</span>
+            <input type="button" onclick="deleteMessage('${id}')" value="Delete">
+          </div>
+        `;
+        return html;
+      }, '');
+    }
+
+    readMessages();
+  </script>
+</body>
+</html>
