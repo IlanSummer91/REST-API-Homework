@@ -45,6 +45,15 @@ app.delete('/messages/:id', (req, res) => {
   res.send(history);
 });
 
+app.put('/messages/:id/:new', (req, res) => {
+  const postFinder = findPostByID(req.params.id);
+  const indexOfPost = history.indexOf(postFinder);
+  console.log(postFinder);
+  history[indexOfPost].message = req.params.new;
+  saveHistory(history);
+  res.send(history);
+});
+
 app.post('/messages', (req, res) => {
   history.push({
     id: uuid,
@@ -54,7 +63,5 @@ app.post('/messages', (req, res) => {
   saveHistory(history);
   res.send(history);
 });
-
-
 
 app.listen(8080);
