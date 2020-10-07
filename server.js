@@ -45,11 +45,10 @@ app.delete('/messages/:id', (req, res) => {
   res.send(history);
 });
 
-app.put('/messages/:id/:new', (req, res) => {
+app.put('/messages/:id/:new_message', (req, res) => {
   const postFinder = findPostByID(req.params.id);
   const indexOfPost = history.indexOf(postFinder);
-  console.log(postFinder);
-  history[indexOfPost].message = req.params.new;
+  history[indexOfPost].message = req.params.new_message;
   saveHistory(history);
   res.send(history);
 });
